@@ -1,15 +1,13 @@
 version: 2.1
 
 description: >
-  Sample orb description
-# What will your orb allow users to accomplish?
-# Descriptions should be short, simple, and informative.
+  Add a custom script that gets the public ip address of the current box and calls the AWS CLI to add an inbound security rule on the fly.
+  Then remove that rule at the end of the script.
+  Referring to https://circleci.com/developer/orbs/orb/configure/aws-white-list-circleci-ip.
 
-# This information will be displayed in the orb registry and is not mandatory.
 display:
-  home_url: "https://www.website.com/docs"
-  source_url: "https://www.github.com/EXAMPLE_ORG/EXAMPLE_PROJECT"
+  home_url: "https://circleci.com/developer/orbs/orb/inokappa/"
+  source_url: "https://github.com/inokappa/aws-sg-white-list-circleci-ip"
 
-# If your orb requires other orbs, you can import them like this. Otherwise remove the "orbs" stanza.
-# orbs:
-#  hello: circleci/hello-build@0.0.5
+orbs:
+  aws-cli: circleci/aws-cli@1.3.0

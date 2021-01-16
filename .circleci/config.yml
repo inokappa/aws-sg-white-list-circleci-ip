@@ -54,7 +54,7 @@ jobs:
             if [ $COUNT != 1 ];then
               exit 1
             fi
-      - aws-sg-white-list-circleci-ip/del
+      - aws-sg-white-list-circleci-ip/del:
           group-id: ${GROUP_ID}
       - run:
           name: Check not exists IP Permission in Security Group (1)

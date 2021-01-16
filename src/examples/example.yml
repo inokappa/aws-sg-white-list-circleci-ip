@@ -13,16 +13,16 @@ usage:
     use-my-orb2:
       jobs:
         - checkout
-        - aws-sg-white-list-circleci-ip/add
+        - aws-sg-white-list-circleci-ip/add:
             group-id: sg-xxxxxxxx
-        - aws-sg-white-list-circleci-ip/del
+        - aws-sg-white-list-circleci-ip/del:
             group-id: sg-xxxxxxxx
     use-my-orb3:
       jobs:
         - checkout
-        - aws-sg-white-list-circleci-ip/add
+        - aws-sg-white-list-circleci-ip/add:
             tag-key: key
             tag-value: value
-        - aws-sg-white-list-circleci-ip/del
+        - aws-sg-white-list-circleci-ip/del:
             tag-key: key
             tag-value: value
