@@ -39,4 +39,4 @@ steps:
         PARAM_TAG_KEY: <<parameters.tag-key>>
         PARAM_TAG_VALUE: <<parameters.tag-value>>
       name: AWS whitelist add CircleCI IP
-      command: \<<include(scripts/add.sh)>>
+      command: <<include(scripts/add.sh)>>
