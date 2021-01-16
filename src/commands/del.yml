@@ -1,0 +1,42 @@
+description: >-
+  This command will add a rule in the SG of the AWS Security Group to allow the
+  ingress of the CircleCI Machine
+parameters:
+  description:
+    description: Description to identify the rule.
+    type: string
+    default: CircleCI
+  port:
+    description: Port to open for the inbound rule.
+    type: integer
+    default: 443
+  mask:
+    description: Mask to use for the ip address.
+    type: integer
+    default: 32
+  group-id:
+    description: Specifies the ID of the security group.
+    type: string
+    default: ''
+  tag-key:
+    description: This key should exist in the SG where we are going to add the rules.
+    type: string
+    default: developers
+  tag-value:
+    description: >-
+      This value should exist in the tag of the SG where we are going to add the
+      rules.
+    type: string
+    default: bastionaccess
+steps:
+  - aws-cli/install
+  - run:
+      environment:
+        PARAM_DESC: <<parameters.description>>
+        PARAM_PORT: <<parameters.port>>
+        PARAM_MASK: <<parameters.mask>>
+        PARAM_GROUPID: <<parameters.group-id>>
+        PARAM_TAG_KEY: <<parameters.tag-key>>
+        PARAM_TAG_VALUE: <<parameters.tag-value>>
+      name: AWS whitelist delete CircleCI IP
+      command: <<include(scripts/del.sh)>>

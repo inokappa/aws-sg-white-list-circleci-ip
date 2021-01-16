@@ -1,0 +1,28 @@
+description: >
+  The usage of aws-sg-white-list-circleci-ip is as follows.
+usage:
+  version: 2.1
+  orbs:
+    aws-sg-white-list-circleci-ip: inokappa/aws-sg-white-list-circleci-ip@0.0.1
+  workflows:
+    use-my-orb1:
+      jobs:
+        - checkout
+        - aws-sg-white-list-circleci-ip/add
+        - aws-sg-white-list-circleci-ip/del
+    use-my-orb2:
+      jobs:
+        - checkout
+        - aws-sg-white-list-circleci-ip/add
+            group-id: sg-xxxxxxxx
+        - aws-sg-white-list-circleci-ip/del
+            group-id: sg-xxxxxxxx
+    use-my-orb3:
+      jobs:
+        - checkout
+        - aws-sg-white-list-circleci-ip/add
+            tag-key: key
+            tag-value: value
+        - aws-sg-white-list-circleci-ip/del
+            tag-key: key
+            tag-value: value
