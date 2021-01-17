@@ -16,7 +16,7 @@ jobs:
     steps:
       - run:
           command: |
-            echo ${<<parameters.to>>}
+            echo ${<<parameters.foo>>}
       - hello-world:
           to: <<parameters.foo>>
 
