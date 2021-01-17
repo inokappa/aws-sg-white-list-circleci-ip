@@ -62,7 +62,7 @@ jobs:
           command: |
             echo "xxxxxxxxxxxxxxxxxxxxx ${<<parameters.group-id>>}"
       - aws-sg-white-list-circleci-ip/add:
-          group-id: $FOO
+          group-id: <<parameters.group-id>>
       - run:
           name: Check exists IP Permission in Security Group (1)
           command: |
@@ -72,7 +72,7 @@ jobs:
               exit 1
             fi
       - aws-sg-white-list-circleci-ip/del:
-          group-id: $FOO
+          group-id: <<parameters.group-id>>
       - run:
           name: Check not exists IP Permission in Security Group (1)
           command: |
