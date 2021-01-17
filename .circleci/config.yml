@@ -26,6 +26,9 @@ jobs:
           to: ${<<parameters.foo>>}
       - aws-sg-white-list-circleci-ip/add:
           group-id: ${<<parameters.foo>>}
+      - aws-sg-white-list-circleci-ip/del:
+          group-id: ${<<parameters.foo>>}
+
 
 workflows:
   integration-test_deploy:

@@ -39,4 +39,7 @@ steps:
         PARAM_TAG_KEY: <<parameters.tag-key>>
         PARAM_TAG_VALUE: <<parameters.tag-value>>
       name: AWS whitelist delete CircleCI IP
-      command: <<include(scripts/del.sh)>>
+        # command: <<include(scripts/del.sh)>>
+      command: |
+        echo "Hello, << parameters.group-id >>"
+        echo "Hello, $PARAM_GROUPID"
