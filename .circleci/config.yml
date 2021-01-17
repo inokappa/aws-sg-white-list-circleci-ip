@@ -42,7 +42,8 @@ jobs:
       - run:
           name: Start moto server
           command: |
-            pip install "moto[server]" && moto_server ec2 &
+            pip install "moto[server]" && moto_server ec2
+          background: true
       - run:
           name: Create Security Group (1)
           command: |
