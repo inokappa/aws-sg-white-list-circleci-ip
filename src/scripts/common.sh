@@ -6,17 +6,16 @@ fi
 Common() {
   LATEST_IP=$(wget -qO- http://checkip.amazonaws.com)
   IP="${IP-$LATEST_IP}"
-  if [[ "${IP}" == "" ]]; then
+  if [ -z "${IP}" ]; then
     echo "Could not find your public IP"
     exit 1
   fi
 
-  if [[ "${PARAM_GROUPID}" = "" ]]; then
+  if [ -z "${PARAM_GROUPID}" ]; then
     GROUPID=$(${AWS_COMMAND} ec2 describe-security-groups \
       --query 'SecurityGroups[].[Tags[?Key==`${PARAM_TAG_KEY}`] | [0].Value, GroupId]' \
       --output text | grep ${PARAM_TAG_VALUE} | awk '{print $2}')
     [[ -n "${GROUPID}" ]] || (echo "Could not determine Security Group ID" && exit 0);
-    echo ${GROUPID}
     PARAM_GROUPID=${GROUPID}
   fi
 }
