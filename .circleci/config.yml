@@ -1,136 +1,26 @@
 version: 2.1
 
 orbs:
-  aws-sg-white-list-circleci-ip: inokappa/aws-sg-white-list-circleci-ip@<<pipeline.parameters.dev-orb-version>>
-  orb-tools: circleci/orb-tools@10.0
-  bats: circleci/bats@1.0
-  shellcheck: circleci/shellcheck@2.0
-
-# Pipeline Parameters
-parameters:
-  run-integration-tests:
-    description: An internal flag to prevent integration test from running before a development version has been created.
-    type: boolean
-    default: false
-  dev-orb-version:
-    description: >
-      The development version of the orb to test.
-      This value is automatically adjusted by the "trigger-integration-tests-workflow" job to correspond with the specific version created by the commit and should not be edited.
-      A "dev:alpha" version must exist for the initial pipeline run.
-    type: string
-    default: "dev:alpha"
+  hello-world: sample-orbs/hello-world@0.0.10
 
 jobs:
   integration-test-1:
     environment:
-      GROUP_ID: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
       FOO: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
     parameters:
-      group-id:
+      foo:
         type: env_var_name
         default: FOO
     docker:
       - image: cimg/python:3.9
-        environment:
-          AWS_ACCESS_KEY_ID: EXAMPLEKEY123
-          AWS_SECRET_ACCESS_KEY: EXAMPLESECRET123456
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_REGION: us-east-1
-          AWS_ENDPOINT: http://moto-server:5000
-          AWS_DISABLE_SSL: true
-      - image: michaelerasmus/docker-moto-server
-        name: moto-server
-        command: ["ec2", "-H", "0.0.0.0"]
     steps:
-      - checkout
       - run:
-          name: Install awscli
           command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-              unzip awscliv2.zip && \
-              sudo ./aws/install
-      - run:
-          name: Create Security Group (1)
-          command: |
-            GROUP_ID=$(aws --endpoint ${AWS_ENDPOINT} ec2 \
-              create-security-group --group-name MySecurityGroup1 --description "My security group1" \
-            | jq -r '.GroupId')
-            echo "export GROUP_ID=${SG_ID}" >> $BASH_ENV
-            source $BASH_ENV
-      - run:
-          name: Test Parameter (1)
-          command: |
-            echo "xxxxxxxxxxxxxxxxxxxxx ${<<parameters.group-id>>}"
-      - aws-sg-white-list-circleci-ip/add:
-          group-id: <<environment.FOO>>
-      - run:
-          name: Check exists IP Permission in Security Group (1)
-          command: |
-            COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
-                    | jq '.SecurityGroups[].IpPermissions|length')
-            if [ $COUNT != 1 ];then
-              exit 1
-            fi
-      - aws-sg-white-list-circleci-ip/del:
-          group-id: <<env.FOO>>
-      - run:
-          name: Check not exists IP Permission in Security Group (1)
-          command: |
-            GROUP_ID=$(aws --endpoint ${AWS_ENDPOINT} ec2 \
-              describe-security-groups --group-names MySecurityGroup1 | jq -r .SecurityGroups[].GroupId)
-            COUNT=$(aws --endpoint http://127.0.0.1:5000 ec2 describe-security-groups --group-ids ${GROUP_ID} \
-                    | jq '.SecurityGroups[].IpPermissions|length')
-            if [ $COUNT != 0 ];then
-              exit 1
-            fi
+            echo ${<<parameters.to>>}
+      - hello-world:
+          to: <<parameters.foo>>
 
 workflows:
-  test-pack:
-    unless: << pipeline.parameters.run-integration-tests >>
-    jobs:
-      - orb-tools/lint
-      - orb-tools/pack
-      - shellcheck/check:
-          dir: ./src/scripts
-          exclude: SC2148,SC1091,SC2046,SC2086,SC2016,SC1090
-      - bats/run:
-          path: ./src/tests
-            # - hold-for-dev-publish:
-            #     type: approval
-            #     requires:
-            #       - orb-tools/lint
-            #       - orb-tools/pack
-            #       - bats/run
-            #       - shellcheck/check
-      - orb-tools/publish-dev:
-          orb-name: inokappa/aws-sg-white-list-circleci-ip
-          context: orb-publishing
-            # requires: [hold-for-dev-publish]
-          requires:
-            - orb-tools/lint
-            - orb-tools/pack
-            - bats/run
-            - shellcheck/check
-      - orb-tools/trigger-integration-tests-workflow:
-          name: trigger-integration-dev
-          context: orb-publishing
-          requires:
-            - orb-tools/publish-dev
-
   integration-test_deploy:
-    when: << pipeline.parameters.run-integration-tests >>
     jobs:
       - integration-test-1
-      - orb-tools/dev-promote-prod-from-commit-subject:
-          orb-name: inokappa/aws-sg-white-list-circleci-ip
-          context: orb-publishing
-          add-pr-comment: false
-          fail-if-semver-not-indicated: true
-          publish-version-tag: false
-          requires:
-            - integration-test-1
-          filters:
-            branches:
-              only:
-                - master
-                - main
