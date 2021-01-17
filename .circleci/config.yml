@@ -27,7 +27,7 @@ jobs:
     parameters:
       group-id:
         type: string
-        default: $GROUP_ID
+        default: GROUP_ID
     docker:
       - image: cimg/python:3.9
         environment:
