@@ -1,4 +1,4 @@
-source ./common.sh
+source $(pwd)/common.sh
 
 Add() {
   Common
