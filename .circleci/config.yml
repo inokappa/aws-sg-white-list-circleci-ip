@@ -23,6 +23,8 @@ jobs:
           name: Test
           command: |
             echo ${<<parameters.group-id>>}
+      - aws-sg-white-list-circleci-ip/add:
+          group-id: <<parameters.group-id>>
 
 workflows:
   test-pack:
