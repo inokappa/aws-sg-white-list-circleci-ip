@@ -17,7 +17,7 @@ jobs:
       - run:
           command: |
             echo ${<<parameters.foo>>}
-      - hello-world:
+      - hello-world/echo-job:
           to: <<parameters.foo>>
 
 workflows:
