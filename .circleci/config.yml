@@ -27,7 +27,7 @@ jobs:
     parameters:
       group-id:
         type: env_var_name
-        default: CIRCLE_BRANCH
+        default: FOO
     docker:
       - image: cimg/python:3.9
         environment:
