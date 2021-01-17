@@ -22,11 +22,10 @@ jobs:
       - run:
           command: |
             FOO=$(echo 'ahoaho')
-      - aws-sg-white-list-circleci-ip/add:
-          group-id: ${<<parameters.foo>>}
       - hello-world/echo-command:
           to: ${<<parameters.foo>>}
-          when: always
+      - aws-sg-white-list-circleci-ip/add:
+          group-id: ${<<parameters.foo>>}
 
 workflows:
   integration-test_deploy:
