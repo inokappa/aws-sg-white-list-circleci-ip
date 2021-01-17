@@ -53,7 +53,7 @@ jobs:
             # echo "export GROUP_ID=${SG_ID}" >> $BASH_ENV
             # source $BASH_ENV
       - aws-sg-white-list-circleci-ip/add:
-          group-id-from-env: ${GROUP_ID}
+          group-id-from-env: GROUP_ID
       - run:
           name: Check exists IP Permission in Security Group (1)
           command: |
@@ -63,7 +63,7 @@ jobs:
               exit 1
             fi
       - aws-sg-white-list-circleci-ip/del:
-          group-id-from-env: ${GROUP_ID}
+          group-id-from-env: GROUP_ID
       - run:
           name: Check not exists IP Permission in Security Group (1)
           command: |
