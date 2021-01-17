@@ -16,6 +16,7 @@ Common() {
       --query 'SecurityGroups[].[Tags[?Key==`${PARAM_TAG_KEY}`] | [0].Value, GroupId]' \
       --output text | grep ${PARAM_TAG_VALUE} | awk '{print $2}')
     [[ -n "${GROUPID}" ]] || (echo "Could not determine Security Group ID" && exit 0);
+    echo ${GROUPID}
     PARAM_GROUPID=${GROUPID}
   fi
 }
