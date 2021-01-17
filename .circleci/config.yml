@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   hello-world: sample-orbs/hello-world@0.0.10
+  aws-sg-white-list-circleci-ip: inokappa/aws-sg-white-list-circleci-ip@dev:alpha
 
 jobs:
   integration-test-1:
@@ -20,6 +21,8 @@ jobs:
       - run:
           command: |
             FOO=$(echo 'ahoaho')
+      - aws-sg-white-list-circleci-ip/add:
+          group-id: ${<<parameters.foo>>}
       - hello-world/echo-command:
           to: ${<<parameters.foo>>}
 
