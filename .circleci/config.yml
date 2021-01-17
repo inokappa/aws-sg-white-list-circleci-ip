@@ -90,17 +90,22 @@ workflows:
           exclude: SC2148,SC1091,SC2046,SC2086,SC2016,SC1090
       - bats/run:
           path: ./src/tests
-      - hold-for-dev-publish:
-          type: approval
+            # - hold-for-dev-publish:
+            #     type: approval
+            #     requires:
+            #       - orb-tools/lint
+            #       - orb-tools/pack
+            #       - bats/run
+            #       - shellcheck/check
+      - orb-tools/publish-dev:
+          orb-name: inokappa/aws-sg-white-list-circleci-ip
+          context: orb-publishing
+            # requires: [hold-for-dev-publish]
           requires:
             - orb-tools/lint
             - orb-tools/pack
             - bats/run
             - shellcheck/check
-      - orb-tools/publish-dev:
-          orb-name: inokappa/aws-sg-white-list-circleci-ip
-          context: orb-publishing
-          requires: [hold-for-dev-publish]
       - orb-tools/trigger-integration-tests-workflow:
           name: trigger-integration-dev
           context: orb-publishing
