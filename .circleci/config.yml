@@ -33,7 +33,7 @@ jobs:
           AWS_DISABLE_SSL: true
       - image: michaelerasmus/docker-moto-server
         name: moto-server
-        command: ["ec2"]
+        command: ["ec2", "-H", "0.0.0.0"]
     steps:
       - checkout
       - run:
