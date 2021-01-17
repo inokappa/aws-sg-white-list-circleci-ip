@@ -18,9 +18,6 @@ parameters:
     description: Specifies the ID of the security group.
     type: string
     default: ''
-  group-id-from-env:
-    description: Specifies the ID of the security group from environment variable.
-    type: env_var_name
   tag-key:
     description: This key should exist in the SG where we are going to add the rules.
     type: string
@@ -39,8 +36,7 @@ steps:
         PARAM_PORT: <<parameters.port>>
         PARAM_MASK: <<parameters.mask>>
         PARAM_GROUPID: <<parameters.group-id>>
-        PARAM_GROUPID_ENV: <<parameters.group-id-from-env>>
         PARAM_TAG_KEY: <<parameters.tag-key>>
         PARAM_TAG_VALUE: <<parameters.tag-value>>
       name: AWS whitelist add CircleCI IP
-      command: <<include(scripts/add.sh)>>
+      command: \<<include(scripts/add.sh)>>
