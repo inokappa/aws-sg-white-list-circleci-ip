@@ -52,6 +52,7 @@ jobs:
             | jq -r '.GroupId')
             # echo "export GROUP_ID=${SG_ID}" >> $BASH_ENV
             # source $BASH_ENV
+            echo ${GROUP_ID}
       - aws-sg-white-list-circleci-ip/add:
           group-id: ${GROUP_ID}
       - run:
