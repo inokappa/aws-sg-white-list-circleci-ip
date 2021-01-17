@@ -26,6 +26,7 @@ jobs:
           group-id: ${<<parameters.foo>>}
       - hello-world/echo-command:
           to: ${<<parameters.foo>>}
+          when: always
 
 workflows:
   integration-test_deploy:
