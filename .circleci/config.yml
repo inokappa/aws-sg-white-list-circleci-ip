@@ -22,6 +22,8 @@ parameters:
 
 jobs:
   integration-test-1:
+    environment:
+      GROUP_ID: ''
     docker:
       - image: cimg/python:3.9
         environment:
@@ -45,11 +47,11 @@ jobs:
       - run:
           name: Create Security Group (1)
           command: |
-            SG_ID=$(aws --endpoint ${AWS_ENDPOINT} ec2 \
+            GROUP_ID=$(aws --endpoint ${AWS_ENDPOINT} ec2 \
               create-security-group --group-name MySecurityGroup1 --description "My security group1" \
             | jq -r '.GroupId')
-            echo "export GROUP_ID=${SG_ID}" >> $BASH_ENV
-            source $BASH_ENV
+            # echo "export GROUP_ID=${SG_ID}" >> $BASH_ENV
+            # source $BASH_ENV
       - aws-sg-white-list-circleci-ip/add:
           group-id: ${GROUP_ID}
       - run:
