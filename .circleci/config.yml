@@ -29,8 +29,11 @@ jobs:
           AWS_SECRET_ACCESS_KEY: EXAMPLESECRET123456
           AWS_DEFAULT_REGION: us-east-1
           AWS_REGION: us-east-1
-          AWS_ENDPOINT: http://127.0.0.1:5000
+          AWS_ENDPOINT: http://moto-server:5000
           AWS_DISABLE_SSL: true
+      - image: michaelerasmus/docker-moto-server
+        name: moto-server
+        command: ["ec2"]
     steps:
       - checkout
       - run:
@@ -39,11 +42,6 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
               unzip awscliv2.zip && \
               sudo ./aws/install
-      - run:
-          name: Start moto server
-          command: |
-            pip install "moto[server]" && moto_server ec2 &
-          background: true
       - run:
           name: Create Security Group (1)
           command: |
