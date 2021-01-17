@@ -24,6 +24,10 @@ jobs:
   integration-test-1:
     environment:
       GROUP_ID: ''
+    parameters:
+      group-id:
+        type: env_var_name
+        default: GROUP_ID
     docker:
       - image: cimg/python:3.9
         environment:
@@ -53,7 +57,7 @@ jobs:
             echo "export GROUP_ID=${SG_ID}" >> $BASH_ENV
             source $BASH_ENV
       - aws-sg-white-list-circleci-ip/add:
-          group-id-from-env: GROUP_ID
+          group-id-from-env: <<parameters.group-id>>
       - run:
           name: Check exists IP Permission in Security Group (1)
           command: |
@@ -63,7 +67,7 @@ jobs:
               exit 1
             fi
       - aws-sg-white-list-circleci-ip/del:
-          group-id-from-env: GROUP_ID
+          group-id-from-env: <<parameters.group-id>>
       - run:
           name: Check not exists IP Permission in Security Group (1)
           command: |
