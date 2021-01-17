@@ -7,6 +7,7 @@ jobs:
   integration-test-1:
     environment:
       GROUP_ID: '1xxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+      FOO: '1xxxxxxxxxxxxxxxxxxxxxxxxxxxx'
     parameters:
       group-id:
         type: env_var_name
