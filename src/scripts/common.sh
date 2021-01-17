@@ -1,3 +1,8 @@
+AWS_COMMAND="aws"
+if [ -n "${AWS_ENDPOINT}" ];then
+  AWS_COMMAND="aws --endpoint ${AWS_ENDPOINT}"
+fi
+
 Common() {
   LATEST_IP=$(wget -qO- http://checkip.amazonaws.com)
   IP="${IP-$LATEST_IP}"
@@ -7,7 +12,7 @@ Common() {
   fi
 
   if [[ "${PARAM_GROUPID}" = "" ]]; then
-    GROUPID=$(aws ec2 describe-security-groups \
+    GROUPID=$(${AWS_COMMAND} ec2 describe-security-groups \
       --query 'SecurityGroups[].[Tags[?Key==`${PARAM_TAG_KEY}`] | [0].Value, GroupId]' \
       --output text | grep ${PARAM_TAG_VALUE} | awk '{print $2}')
     [[ -n "${GROUPID}" ]] || (echo "Could not determine Security Group ID" && exit 0);
