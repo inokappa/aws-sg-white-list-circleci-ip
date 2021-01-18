@@ -3,6 +3,7 @@ source $(pwd)/src/scripts/common.sh
 Add() {
   Common
 
+  echo ""
   echo "PARAM_GROUPID = << parameters.group-id >>"
   echo "PARAM_GROUPID = ${PARAM_GROUPID}"
   echo "Allowing CircleCI to access port ${PARAM_PORT} from IP ${IP} to the security group ${PARAM_GROUPID}"
