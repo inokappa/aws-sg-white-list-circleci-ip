@@ -7,7 +7,7 @@ orbs:
 jobs:
   integration-test-1:
     environment:
-      FOO: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+      FOO: '123'
     parameters:
       foo:
         type: env_var_name
@@ -21,7 +21,7 @@ jobs:
             echo ${<<parameters.foo>>}
       - run:
           command: |
-            FOO=$(echo 'ahoaho')
+            echo "export FOO=aaaaaaaaaaaaaaaaaaaaaaaaaaaa" >> ${BASH_ENV}
       - hello-world/echo-command:
           to: ${<<parameters.foo>>}
       - aws-sg-white-list-circleci-ip/add:
