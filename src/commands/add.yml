@@ -39,7 +39,10 @@ steps:
         PARAM_TAG_KEY: <<parameters.tag-key>>
         PARAM_TAG_VALUE: <<parameters.tag-value>>
       name: AWS whitelist add CircleCI IP
-      command: << include(scripts/add.sh) >>
-        # command: |
-        #   echo "Hello, << parameters.group-id >>"
-        #   echo "Hello, $PARAM_GROUPID"
+      command: >
+        source $(pwd)/src/scripts/common.sh
+        Common
+        echo "Allowing CircleCI to access port <<parameters.port>> from IP ${IP} to the security group <<parameters.group-id>>"
+        ${AWS_COMMAND} ec2 authorize-security-group-ingress \
+          --group-id "<<parameters.group-id>>" \
+          --ip-permissions '[{"IpProtocol": "tcp", "FromPort": <<parameters.port>>, "ToPort": <<parameters.port>>, "IpRanges": [{"CidrIp": "${IP}/<<parameters.mask>>", "Description": "<<parameters.description>>"}]}]'
