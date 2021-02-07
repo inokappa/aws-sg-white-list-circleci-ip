@@ -31,13 +31,6 @@ parameters:
 steps:
   - aws-cli/install
   - run:
-      environment:
-        PARAM_DESC: <<parameters.description>>
-        PARAM_PORT: <<parameters.port>>
-        PARAM_MASK: <<parameters.mask>>
-        PARAM_GROUPID: <<parameters.group-id>>
-        PARAM_TAG_KEY: <<parameters.tag-key>>
-        PARAM_TAG_VALUE: <<parameters.tag-value>>
       name: AWS whitelist delete CircleCI IP
         # command: <<include(scripts/del.sh)>>
       command: |

@@ -14,7 +14,7 @@ jobs:
         default: FOO
       bar:
         type: string
-        default: 'bar'
+        default: 'test'
     docker:
       - image: cimg/python:3.9
     steps:
