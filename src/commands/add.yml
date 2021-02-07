@@ -30,7 +30,7 @@ parameters:
     default: bastionaccess
 steps:
   - run:
-      name:
+      name: Add IP address
       command: |
         AWS_COMMAND="aws"
         if [ -n "${AWS_ENDPOINT}" ];then
@@ -52,7 +52,7 @@ steps:
           PARAM_GROUPID=${GROUPID}
         fi
 
-        ${AWS_COMMAND} ec2 authorize-security-group-ingress --group-id "${<< parameters.group-id >>}" --ip-permissions \
+        ${AWS_COMMAND} ec2 authorize-security-group-ingress --group-id "<< parameters.group-id >>" --ip-permissions \
           $(echo '[{"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "IpRanges": [{"CidrIp": "", "Description": "CircleCI"}]}]' \
             | jq -c '.[].IpRanges[].CidrIp="'${IP}/<< parameters.mask >>'"|.[].IpRanges[].Description="'<< parameters.description >>'"|.[].FromPort='<< parameters.port >>'|.[].ToPort='<< parameters.port >>'')
 

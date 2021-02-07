@@ -30,6 +30,6 @@ parameters:
     default: bastionaccess
 steps:
   - run:
-      name: teteetetetetetetet
+      name: Remove IP address
       command: |
         echo "Hello, << parameters.group-id >>"
