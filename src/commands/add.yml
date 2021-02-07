@@ -47,7 +47,7 @@ steps:
         if [ -z "<< parameters.group-id >>" ]; then
           GROUPID=$(${AWS_COMMAND} ec2 describe-security-groups \
             --query 'SecurityGroups[].[Tags[?Key==`<< parameters.tag-key >>`] | [0].Value, GroupId]' \
-            --output text | grep ${<< parameters.tag-value >>} | awk '{print $2}')
+            --output text | grep << parameters.tag-value >> | awk '{print $2}')
           [[ -n "${GROUPID}" ]] || (echo "Could not determine Security Group ID" && exit 0);
           PARAM_GROUPID=${GROUPID}
         fi
