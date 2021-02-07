@@ -22,17 +22,14 @@ jobs:
       - run:
           command: |
             echo ${<<parameters.foo>>}
-      - run:
-          command: |
-            echo "export FOO=aaaaaaaaaaaaaaaaaaaaaaaaaaaa" >> ${BASH_ENV}
       - hello-world/echo-command:
-          to: <<parameters.foo>>
+          to: ${<<parameters.foo>>}
       - hello-world/echo-command:
           to: 'aho'
       - aws-sg-white-list-circleci-ip/add:
-          group-id: <<parameters.foo>>
+          group-id: ${<<parameters.foo>>}
       - aws-sg-white-list-circleci-ip/del:
-          group-id: <<parameters.foo>>
+          group-id: ${<<parameters.foo>>}
 
 #
 workflows:
