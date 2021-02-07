@@ -12,6 +12,10 @@ jobs:
       foo:
         type: env_var_name
         default: FOO
+    parameters:
+      bar:
+        type: string
+        default: 'bar'
     docker:
       - image: cimg/python:3.9
     steps:
@@ -27,7 +31,7 @@ jobs:
       - aws-sg-white-list-circleci-ip/add:
           group-id: ${<<parameters.foo>>}
       - aws-sg-white-list-circleci-ip/del:
-          group-id: ${<<parameters.foo>>}
+          group-id: ${<<parameters.bar>>}
 
 #
 workflows:
