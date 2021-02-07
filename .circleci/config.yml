@@ -20,8 +20,13 @@ jobs:
     steps:
       - checkout
       - run:
+          name: 123 と出るはず
           command: |
             echo ${<<parameters.foo>>}
+      - run:
+          name: 123 と出るはず
+          command: |
+            echo ${FOO}
       - hello-world/echo-command:
           to: ${<<parameters.foo>>}
       - hello-world/echo-command:
