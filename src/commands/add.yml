@@ -33,25 +33,6 @@ steps:
   - run:
       name: AWS whitelist add CircleCI IP
       command: >
-        LATEST_IP=$(wget -qO- http://checkip.amazonaws.com)
-        IP="${IP-$LATEST_IP}"
-        if [ -z "${IP}" ]; then
-          echo "Could not find your public IP"
-          exit 1
-        fi
-
         echo "-----------------------"
         echo "<<parameters.group-id>>"
         echo "-----------------------"
-
-        if [ -z "<<parameters.group-id>>" ];then
-          GROUPID=$(${AWS_COMMAND} ec2 describe-security-groups \
-            --query 'SecurityGroups[].[Tags[?Key==`<<parameters.tag-key>>`] | [0].Value, GroupId]' \
-            --output text | grep ${PARAM_TAG_VALUE} | awk '{print $2}')
-          [[ -n "${GROUPID}" ]] || (echo "Could not determine Security Group ID" && exit 0);
-        fi
-
-        echo "Allowing CircleCI to access port <<parameters.port>> from IP ${IP} to the security group ${GROUPID}"
-        ${AWS_COMMAND} ec2 authorize-security-group-ingress \
-          --group-id "${GROUPID}" \
-          --ip-permissions '[{"IpProtocol": "tcp", "FromPort": <<parameters.port>>, "ToPort": <<parameters.port>>, "IpRanges": [{"CidrIp": "${IP}/<<parameters.mask>>", "Description": "<<parameters.description>>"}]}]'
