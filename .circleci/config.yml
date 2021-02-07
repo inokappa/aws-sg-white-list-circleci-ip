@@ -56,7 +56,7 @@ jobs:
             | jq -r '.GroupId')
             echo "export GROUP_ID=${SG_ID}" >> $BASH_ENV
       - aws-sg-white-list-circleci-ip/add:
-          group-id: ${<< params.group-id >>}
+          group-id: ${<< parameters.group-id >>}
       - run:
           name: Check exists IP Permission in Security Group (1)
           command: |
@@ -66,7 +66,7 @@ jobs:
               exit 1
             fi
       - aws-sg-white-list-circleci-ip/del:
-          group-id: ${<< params.group-id >>}
+          group-id: ${<< parameters.group-id >>}
       - run:
           name: Check not exists IP Permission in Security Group (1)
           command: |
