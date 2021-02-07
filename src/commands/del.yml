@@ -29,4 +29,5 @@ parameters:
     type: string
     default: bastionaccess
 steps:
-  - run: 'echo "Hello, << parameters.group-id >>"'
+  - run: |
+      echo "Hello, << parameters.group-id >>"
