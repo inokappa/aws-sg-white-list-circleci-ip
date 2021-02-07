@@ -12,7 +12,6 @@ jobs:
       foo:
         type: env_var_name
         default: FOO
-    parameters:
       bar:
         type: string
         default: 'bar'
