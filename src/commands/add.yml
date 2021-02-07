@@ -29,12 +29,4 @@ parameters:
     type: string
     default: bastionaccess
 steps:
-  - aws-cli/install
-  - run:
-      name: AWS whitelist add CircleCI IP
-      command: >
-        echo "-----------------------"
-        'echo "<<parameters.group-id>>"'
-        echo "<<parameters.group-id>>"
-        echo "-----------------------"
-        echo "-----------------------"
+  - run: 'echo "<<parameters.group-id>>"'

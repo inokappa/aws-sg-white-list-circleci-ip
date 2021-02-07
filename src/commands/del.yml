@@ -29,12 +29,4 @@ parameters:
     type: string
     default: bastionaccess
 steps:
-  - aws-cli/install
-  - run:
-      name: AWS whitelist delete CircleCI IP
-        # command: <<include(scripts/del.sh)>>
-      command: |
-        echo "--------------------------------"
-        'echo "Hello, << parameters.group-id >>"'
-        'echo "Hello, $PARAM_GROUPID"'
-        echo "--------------------------------"
+  - run: 'echo "Hello, << parameters.group-id >>"'
