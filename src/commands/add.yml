@@ -34,6 +34,7 @@ steps:
       name: AWS whitelist add CircleCI IP
       command: >
         echo "-----------------------"
+        'echo "<<parameters.group-id>>"'
         echo "<<parameters.group-id>>"
         echo "-----------------------"
         echo "-----------------------"
