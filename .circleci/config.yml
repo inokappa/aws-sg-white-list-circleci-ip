@@ -70,7 +70,7 @@ jobs:
       - run:
           name: Check not exists IP Permission in Security Group (1)
           command: |
-            COUNT=$(aws --endpoint http://127.0.0.1:5000 ec2 describe-security-groups --group-ids ${GROUP_ID} \
+            COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
                     | jq '.SecurityGroups[].IpPermissions|length')
             if [ $COUNT != 0 ];then
               exit 1
