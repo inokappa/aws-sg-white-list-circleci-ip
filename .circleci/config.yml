@@ -134,8 +134,9 @@ jobs:
           name: Check description IP Permission in Security Group
           command: |
             DESC=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
-                    | jq '.SecurityGroups[].IpPermissions[0].IpRanges[0].Description')
-            if [ "$DESC" != "Test-Permission" ];then
+                    | jq -r '.SecurityGroups[].IpPermissions[0].IpRanges[0].Description')
+            echo ${DESC}
+            if [ "${DESC}" != "Test-Permission" ];then
               exit 1
             fi
       - aws-sg-white-list-circleci-ip/del:
