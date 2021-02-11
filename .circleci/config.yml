@@ -142,6 +142,7 @@ jobs:
       - aws-sg-white-list-circleci-ip/del:
           tag-key: 'sg-white-list'
           tag-value: 'true'
+          description: 'Test-Permission'
       - check-not-exists-ip-permission
 
 workflows:
