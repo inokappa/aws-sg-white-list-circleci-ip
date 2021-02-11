@@ -34,7 +34,7 @@ steps:
       command: |
         AWS_COMMAND="aws"
         if [ -n "${AWS_ENDPOINT}" ];then
-          AWS_COMMAND="aws --endpoint ${AWS_ENDPOINT}"
+          AWS_COMMAND="aws --debug --endpoint ${AWS_ENDPOINT}"
         fi
 
         LATEST_IP=$(wget -qO- http://checkip.amazonaws.com)
