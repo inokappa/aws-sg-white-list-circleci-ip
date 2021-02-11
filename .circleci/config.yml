@@ -64,8 +64,7 @@ commands:
           command: |
             COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
                     | jq '.SecurityGroups[].IpPermissions|length')
-                    # if [ $COUNT != 1 ];then
-            if [ $COUNT = 1 ];then
+            if [ $COUNT != 1 ];then
               exit 1
             fi
 
