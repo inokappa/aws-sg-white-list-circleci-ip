@@ -110,8 +110,8 @@ jobs:
             aws --endpoint ${AWS_ENDPOINT} ec2 \
               create-tags --resources ${SG_ID} --tags Key=sg-white-list,Value=true
       - aws-sg-white-list-circleci-ip/add:
-          tag-key: sg-white-list
-          tag-value: true
+          tag-key: 'sg-white-list'
+          tag-value: 'true'
       - run:
           name: Check exists IP Permission in Security Group (2)
           command: |
@@ -121,8 +121,8 @@ jobs:
               exit 1
             fi
       - aws-sg-white-list-circleci-ip/del:
-          tag-key: sg-white-list
-          tag-value: true
+          tag-key: 'sg-white-list'
+          tag-value: 'true'
       - run:
           name: Check not exists IP Permission in Security Group (2)
           command: |
