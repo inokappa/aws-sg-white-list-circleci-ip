@@ -54,6 +54,8 @@ commands:
               create-security-group --group-name MySecurityGroup --description "My security group" \
             | jq -r '.GroupId')
             echo "export GROUP_ID=${SG_ID}" >> $BASH_ENV
+            aws --endpoint ${AWS_ENDPOINT} ec2 \
+              create-tags --resources ${SG_ID} --tags Key=sg-white-list,Value=true
 
   check-exists-ip-permission:
     steps:
@@ -102,57 +104,19 @@ jobs:
     environment:
       AWS_PAGER: ''
       GROUP_ID: ''
-    docker:
-      - image: cimg/python:3.9
-        environment:
-          AWS_ACCESS_KEY_ID: EXAMPLEKEY123
-          AWS_SECRET_ACCESS_KEY: EXAMPLESECRET123456
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_REGION: us-east-1
-          AWS_ENDPOINT: http://moto-server:5000
-          AWS_DISABLE_SSL: true
-      - image: michaelerasmus/docker-moto-server
-        name: moto-server
-        command: ["ec2", "-H", "0.0.0.0"]
+    executor: integration-test
     steps:
       - checkout
-      - run:
-          name: Install awscli
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-              unzip awscliv2.zip && \
-              sudo ./aws/install
-      - run:
-          name: Create Security Group (2)
-          command: |
-            SG_ID=$(aws --endpoint ${AWS_ENDPOINT} ec2 \
-              create-security-group --group-name MySecurityGroup2 --description "My security group2" \
-            | jq -r '.GroupId')
-            echo "export GROUP_ID=${SG_ID}" >> $BASH_ENV
-            aws --endpoint ${AWS_ENDPOINT} ec2 \
-              create-tags --resources ${SG_ID} --tags Key=sg-white-list,Value=true
+      - install-awscli
+      - create-security-group
       - aws-sg-white-list-circleci-ip/add:
           tag-key: 'sg-white-list'
           tag-value: 'true'
-      - run:
-          name: Check exists IP Permission in Security Group (2)
-          command: |
-            COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
-                    | jq '.SecurityGroups[].IpPermissions|length')
-            if [ $COUNT != 1 ];then
-              exit 1
-            fi
+      - check-exists-ip-permission
       - aws-sg-white-list-circleci-ip/del:
           tag-key: 'sg-white-list'
           tag-value: 'true'
-      - run:
-          name: Check not exists IP Permission in Security Group (2)
-          command: |
-            COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
-                    | jq '.SecurityGroups[].IpPermissions|length')
-            if [ $COUNT != 0 ];then
-              exit 1
-            fi
+      - check-not-exists-ip-permission
 
 workflows:
   test-pack:
