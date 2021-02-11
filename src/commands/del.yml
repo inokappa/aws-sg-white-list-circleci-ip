@@ -34,7 +34,7 @@ steps:
       command: |
         AWS_COMMAND="aws"
         if [ -n "${AWS_ENDPOINT}" ];then
-          AWS_COMMAND="aws --debug --endpoint ${AWS_ENDPOINT}"
+          AWS_COMMAND="aws --endpoint ${AWS_ENDPOINT}"
         fi
 
         LATEST_IP=$(wget -qO- http://checkip.amazonaws.com)
@@ -52,10 +52,7 @@ steps:
           PARAM_GROUPID=${GROUPID}
         fi
 
-        echo '[{"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "IpRanges": [{"CidrIp": "", "Description": "CircleCI"}]}]' \
-            | jq -c '.[].IpRanges[].CidrIp="'${IP}/<< parameters.mask >>'"|.[].IpRanges[].Description="'<< parameters.description >>'"|.[].FromPort='<< parameters.port >>'|.[].ToPort='<< parameters.port >>''
-
-            # ${AWS_COMMAND} ec2 revoke-security-group-ingress \
-            #   --group-id "${PARAM_GROUPID}" --ip-permissions \
-            #   $(echo '[{"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "IpRanges": [{"CidrIp": "", "Description": "CircleCI"}]}]' \
-            #     | jq -c '.[].IpRanges[].CidrIp="'${IP}/<< parameters.mask >>'"|.[].IpRanges[].Description="'<< parameters.description >>'"|.[].FromPort='<< parameters.port >>'|.[].ToPort='<< parameters.port >>'')
+        ${AWS_COMMAND} ec2 revoke-security-group-ingress \
+          --group-id "<< parameters.group-id >>" --ip-permissions \
+          $(echo '[{"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "IpRanges": [{"CidrIp": "", "Description": "CircleCI"}]}]' \
+            | jq -c '.[].IpRanges[].CidrIp="'${IP}/<< parameters.mask >>'"|.[].IpRanges[].Description="'<< parameters.description >>'"|.[].FromPort='<< parameters.port >>'|.[].ToPort='<< parameters.port >>'')
