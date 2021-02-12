@@ -26,3 +26,10 @@ usage:
         - aws-sg-white-list-circleci-ip/del:
             tag-key: key
             tag-value: value
+    use-my-orb4:
+      jobs:
+        - checkout
+        - aws-sg-white-list-circleci-ip/add:
+            description: MyDescription
+        - aws-sg-white-list-circleci-ip/del:
+            description: MyDescription
