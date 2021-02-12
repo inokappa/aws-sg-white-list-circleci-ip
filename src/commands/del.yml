@@ -56,5 +56,5 @@ steps:
 
         ${AWS_COMMAND} ec2 revoke-security-group-ingress \
           --group-id "${PARAM_GROUPID}" --ip-permissions \
-          $(echo '[{"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "IpRanges": [{"CidrIp": "", "Description": "CircleCI"}]}]' \
+          $(echo '[{"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "IpRanges": [{"CidrIp": "", "Description": ""}]}]' \
             | jq -c '.[].IpRanges[].CidrIp="'${IP}/<< parameters.mask >>'"|.[].IpRanges[].Description="'<< parameters.description >>'"|.[].FromPort='<< parameters.port >>'|.[].ToPort='<< parameters.port >>'')
