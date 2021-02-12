@@ -6,7 +6,6 @@ orbs:
   bats: circleci/bats@1.0
   shellcheck: circleci/shellcheck@2.0
 
-# Pipeline Parameters
 parameters:
   run-integration-tests:
     description: An internal flag to prevent integration test from running before a development version has been created.
@@ -20,8 +19,8 @@ parameters:
     type: string
     default: "dev:alpha"
 
-jobs:
-  integration-test-1:
+executors:
+  integration-test:
     docker:
       - image: cimg/python:3.9
         environment:
@@ -29,43 +28,123 @@ jobs:
           AWS_SECRET_ACCESS_KEY: EXAMPLESECRET123456
           AWS_DEFAULT_REGION: us-east-1
           AWS_REGION: us-east-1
-          AWS_ENDPOINT: http://127.0.0.1:5000
+          AWS_ENDPOINT: http://moto-server:5000
           AWS_DISABLE_SSL: true
+      - image: motoserver/moto
+        name: moto-server
+        command: ["ec2", "-H", "0.0.0.0"]
+
+commands:
+  install-awscli:
     steps:
-      - checkout
       - run:
-          name: Start moto server
+          name: Install awscli
           command: |
-            pip install "moto[server]" && moto_server ec2 &
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+              unzip awscliv2.zip && \
+              sudo ./aws/install
+
+  create-security-group:
+    steps:
       - run:
-          name: Create Security Group (1)
+          name: Create Security Group
           command: |
             SG_ID=$(aws --endpoint ${AWS_ENDPOINT} ec2 \
-              create-security-group --group-name MySecurityGroup1 --description "My security group1" \
+              create-security-group --group-name MySecurityGroup --description "My security group" \
             | jq -r '.GroupId')
             echo "export GROUP_ID=${SG_ID}" >> $BASH_ENV
-      - aws-sg-white-list-circleci-ip/add:
-          group-id: ${GROUP_ID}
+            aws --endpoint ${AWS_ENDPOINT} ec2 \
+              create-tags --resources ${SG_ID} --tags Key=sg-white-list,Value=true
+
+  check-exists-ip-permission:
+    steps:
       - run:
-          name: Check exists IP Permission in Security Group (1)
+          name: Check exists IP Permission in Security Group
           command: |
-            COUNT=$(aws --endpoint http://127.0.0.1:5000 ec2 describe-security-groups --group-ids ${GROUP_ID} \
+            COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
                     | jq '.SecurityGroups[].IpPermissions|length')
             if [ $COUNT != 1 ];then
               exit 1
             fi
-      - aws-sg-white-list-circleci-ip/del
-          group-id: ${GROUP_ID}
+
+  check-not-exists-ip-permission:
+    steps:
       - run:
-          name: Check not exists IP Permission in Security Group (1)
+          name: Check not exists IP Permission in Security Group
           command: |
-            GROUP_ID=$(aws --endpoint http://127.0.0.1:5000 ec2 \
-              describe-security-groups --group-names MySecurityGroup1 | jq -r .SecurityGroups[].GroupId)
-            COUNT=$(aws --endpoint http://127.0.0.1:5000 ec2 describe-security-groups --group-ids ${GROUP_ID} \
+            COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
                     | jq '.SecurityGroups[].IpPermissions|length')
             if [ $COUNT != 0 ];then
               exit 1
             fi
+
+jobs:
+  integration-test-1:
+    environment:
+      AWS_PAGER: ''
+      GROUP_ID: ''
+    parameters:
+      group-id:
+        type: env_var_name
+        default: GROUP_ID
+    executor: integration-test
+    steps:
+      - checkout
+      - install-awscli
+      - create-security-group
+      - aws-sg-white-list-circleci-ip/add:
+          group-id: ${<< parameters.group-id >>}
+      - check-exists-ip-permission
+      - aws-sg-white-list-circleci-ip/del:
+          group-id: ${<< parameters.group-id >>}
+      - check-not-exists-ip-permission
+
+  integration-test-2:
+    environment:
+      AWS_PAGER: ''
+      GROUP_ID: ''
+    executor: integration-test
+    steps:
+      - checkout
+      - install-awscli
+      - create-security-group
+      - aws-sg-white-list-circleci-ip/add:
+          tag-key: 'sg-white-list'
+          tag-value: 'true'
+      - check-exists-ip-permission
+      - aws-sg-white-list-circleci-ip/del:
+          tag-key: 'sg-white-list'
+          tag-value: 'true'
+      - check-not-exists-ip-permission
+
+  integration-test-3:
+    environment:
+      AWS_PAGER: ''
+      GROUP_ID: ''
+    parameters:
+      group-id:
+        type: env_var_name
+        default: GROUP_ID
+    executor: integration-test
+    steps:
+      - checkout
+      - install-awscli
+      - create-security-group
+      - aws-sg-white-list-circleci-ip/add:
+          group-id: ${<< parameters.group-id >>}
+          description: 'Test-Permission'
+      - run:
+          name: Check description IP Permission in Security Group
+          command: |
+            DESC=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
+                    | jq -r '.SecurityGroups[].IpPermissions[0].IpRanges[0].Description')
+            if [ "${DESC}" != "Test-Permission" ];then
+              exit 1
+            fi
+      - aws-sg-white-list-circleci-ip/del:
+          group-id: ${<< parameters.group-id >>}
+          description: 'Test-Permission'
+      - check-not-exists-ip-permission
 
 workflows:
   test-pack:
@@ -75,20 +154,25 @@ workflows:
       - orb-tools/pack
       - shellcheck/check:
           dir: ./src/scripts
-          exclude: SC2148
+          exclude: SC2148,SC1091,SC2046,SC2086,SC2016,SC1090
       - bats/run:
           path: ./src/tests
-      - hold-for-dev-publish:
-          type: approval
+            # - hold-for-dev-publish:
+            #     type: approval
+            #     requires:
+            #       - orb-tools/lint
+            #       - orb-tools/pack
+            #       - bats/run
+            #       - shellcheck/check
+      - orb-tools/publish-dev:
+          orb-name: inokappa/aws-sg-white-list-circleci-ip
+          context: orb-publishing
+            # requires: [hold-for-dev-publish]
           requires:
             - orb-tools/lint
             - orb-tools/pack
             - bats/run
             - shellcheck/check
-      - orb-tools/publish-dev:
-          orb-name: inokappa/aws-sg-white-list-circleci-ip
-          context: orb-publishing
-          requires: [hold-for-dev-publish]
       - orb-tools/trigger-integration-tests-workflow:
           name: trigger-integration-dev
           context: orb-publishing
@@ -99,6 +183,8 @@ workflows:
     when: << pipeline.parameters.run-integration-tests >>
     jobs:
       - integration-test-1
+      - integration-test-2
+      - integration-test-3
       - orb-tools/dev-promote-prod-from-commit-subject:
           orb-name: inokappa/aws-sg-white-list-circleci-ip
           context: orb-publishing
@@ -107,6 +193,8 @@ workflows:
           publish-version-tag: false
           requires:
             - integration-test-1
+            - integration-test-2
+            - integration-test-3
           filters:
             branches:
               only:

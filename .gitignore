@@ -2,3 +2,5 @@
 orb.yml
 .envrc
 docker-compose.yml
+DEVELOPMENT.md
+Makefile

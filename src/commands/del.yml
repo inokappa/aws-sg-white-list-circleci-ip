@@ -3,7 +3,7 @@ description: >-
   ingress of the CircleCI Machine
 parameters:
   description:
-    description: Description to identify the rule.
+    description: Description to identify the rule. Spaces cannot be included.
     type: string
     default: CircleCI
   port:
@@ -19,7 +19,8 @@ parameters:
     type: string
     default: ''
   tag-key:
-    description: This key should exist in the SG where we are going to add the rules.
+    description: >-
+      This key should exist in the SG where we are going to add the rules.
     type: string
     default: developers
   tag-value:
@@ -29,14 +30,31 @@ parameters:
     type: string
     default: bastionaccess
 steps:
-  - aws-cli/install
   - run:
-      environment:
-        PARAM_DESC: <<parameters.description>>
-        PARAM_PORT: <<parameters.port>>
-        PARAM_MASK: <<parameters.mask>>
-        PARAM_GROUPID: <<parameters.group-id>>
-        PARAM_TAG_KEY: <<parameters.tag-key>>
-        PARAM_TAG_VALUE: <<parameters.tag-value>>
-      name: AWS whitelist delete CircleCI IP
-      command: <<include(scripts/del.sh)>>
+      name: Remove CircleCI's IP address from the Security Group
+      command: |
+        AWS_COMMAND="aws"
+        if [ -n "${AWS_ENDPOINT}" ];then
+          AWS_COMMAND="aws --endpoint ${AWS_ENDPOINT}"
+        fi
+
+        LATEST_IP=$(wget -qO- http://checkip.amazonaws.com)
+        IP="${IP-$LATEST_IP}"
+        if [ -z "${IP}" ]; then
+          echo "Could not find your public IP"
+          exit 1
+        fi
+
+        PARAM_GROUPID=<< parameters.group-id >>
+        if [ -z "${PARAM_GROUPID}" ]; then
+          GROUPID=$(${AWS_COMMAND} ec2 describe-security-groups \
+            --query 'SecurityGroups[].[Tags[?Key==`<< parameters.tag-key >>`] | [0].Value, GroupId]' \
+            --output text | grep << parameters.tag-value >> | awk '{print $2}')
+          [[ -n "${GROUPID}" ]] || (echo "Could not determine Security Group ID" && exit 0);
+          PARAM_GROUPID=${GROUPID}
+        fi
+
+        ${AWS_COMMAND} ec2 revoke-security-group-ingress \
+          --group-id "${PARAM_GROUPID}" --ip-permissions \
+          $(echo '[{"IpProtocol": "tcp", "FromPort": 443, "ToPort": 443, "IpRanges": [{"CidrIp": "", "Description": ""}]}]' \
+            | jq -c '.[].IpRanges[].CidrIp="'${IP}/<< parameters.mask >>'"|.[].IpRanges[].Description="'<< parameters.description >>'"|.[].FromPort='<< parameters.port >>'|.[].ToPort='<< parameters.port >>'')
