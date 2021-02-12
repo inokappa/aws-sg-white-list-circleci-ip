@@ -30,6 +30,8 @@ usage:
       jobs:
         - checkout
         - aws-sg-white-list-circleci-ip/add:
+            group-id: sg-xxxxxxxx
             description: MyDescription
         - aws-sg-white-list-circleci-ip/del:
+            group-id: sg-xxxxxxxx
             description: MyDescription
