@@ -157,6 +157,11 @@ jobs:
           group-id: ${<< parameters.group-id >>}
           description: 'Test-Permission'
       - run:
+          name: Debug
+          command: |
+            echo ${GROUP_ID}
+            echo << parameters.group-id >>
+      - run:
           name: Check description IP Permission in Security Group
           command: |
             DESC=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
