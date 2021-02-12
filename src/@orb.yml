@@ -10,4 +10,5 @@ display:
   source_url: "https://github.com/inokappa/aws-sg-white-list-circleci-ip"
 
 orbs:
-  aws-cli: circleci/aws-cli@1.3.0
+  aws-cli: circleci/aws-cli@1.3.3
+  jq: circleci/jq@2.2.0
