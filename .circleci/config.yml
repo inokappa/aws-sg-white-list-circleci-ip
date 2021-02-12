@@ -121,29 +121,6 @@ jobs:
     environment:
       AWS_PAGER: ''
       GROUP_ID: ''
-    executor: integration-test
-    steps:
-      - checkout
-      - install-awscli
-      - create-security-group
-      - aws-sg-white-list-circleci-ip/add:
-          description: 'Test-Permission'
-      - run:
-          name: Check description IP Permission in Security Group
-          command: |
-            DESC=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
-                    | jq -r '.SecurityGroups[].IpPermissions[0].IpRanges[0].Description')
-            if [ "${DESC}" != "Test-Permission" ];then
-              exit 1
-            fi
-      - aws-sg-white-list-circleci-ip/del:
-          description: 'Test-Permission'
-      - check-not-exists-ip-permission
-
-  integration-test-4:
-    environment:
-      AWS_PAGER: ''
-      GROUP_ID: ''
     parameters:
       group-id:
         type: env_var_name
@@ -156,11 +133,6 @@ jobs:
       - aws-sg-white-list-circleci-ip/add:
           group-id: ${<< parameters.group-id >>}
           description: 'Test-Permission'
-      - run:
-          name: Debug
-          command: |
-            echo ${GROUP_ID}
-            echo << parameters.group-id >>
       - run:
           name: Check description IP Permission in Security Group
           command: |
