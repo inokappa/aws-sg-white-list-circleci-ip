@@ -31,7 +31,7 @@ parameters:
     default: bastionaccess
 steps:
   - run:
-      name: Add IP address
+      name: Add CircleCI's IP address to the Security Group
       command: |
         AWS_COMMAND="aws"
         if [ -n "${AWS_ENDPOINT}" ];then
