@@ -71,7 +71,6 @@ commands:
 
   check-exists-ip-permission:
     steps:
-      - describe-security-groups
       - run:
           name: Check exists IP Permission in Security Group
           command: |
@@ -111,9 +110,11 @@ jobs:
       - create-security-group
       - aws-sg-white-list-circleci-ip/add:
           group-id: ${<< parameters.group-id >>}
+      - describe-security-groups
       - check-exists-ip-permission
       - aws-sg-white-list-circleci-ip/del:
           group-id: ${<< parameters.group-id >>}
+      - describe-security-groups
       - check-not-exists-ip-permission
 
   integration-test-2:
