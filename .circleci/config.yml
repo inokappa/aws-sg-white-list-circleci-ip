@@ -175,6 +175,31 @@ jobs:
           port: 22
       - check-not-exists-ip-permission
 
+  integration-test-5:
+    environment:
+      AWS_PAGER: ''
+      GROUP_ID: ''
+    executor: integration-test
+    steps:
+      - checkout
+      - install-awscli
+      - create-security-group
+      - aws-sg-white-list-circleci-ip/add:
+          tag-key: 'sg-white-list'
+          tag-value: 'true'
+          port: 22
+      - check-exists-ip-permission
+      - run:
+          name: Command failure
+          command: |
+            echo 'Command failure.'
+            exit 1
+      - aws-sg-white-list-circleci-ip/del:
+          tag-key: 'sg-white-list'
+          tag-value: 'true'
+          port: 22
+      - check-not-exists-ip-permission
+
 workflows:
   test-pack:
     unless: << pipeline.parameters.run-integration-tests >>
