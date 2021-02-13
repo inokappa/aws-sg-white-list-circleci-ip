@@ -56,24 +56,37 @@ commands:
             aws --endpoint ${AWS_ENDPOINT} ec2 \
               create-tags --resources ${SG_ID} --tags Key=sg-white-list,Value=true
 
+  describe-security-groups:
+    steps:
+      - run:
+          name: Describe Security Groups
+          command: |
+            SG_RESULT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
+                    | jq -c .)
+            echo "export SECURITY_GROUP_RESULT=${SG_RESULT}" >> $BASH_ENV
+
   check-exists-ip-permission:
     steps:
+      - describe-security-groups
       - run:
           name: Check exists IP Permission in Security Group
           command: |
-            COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
-                    | jq '.SecurityGroups[].IpPermissions|length')
+            # COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
+            #         | jq '.SecurityGroups[].IpPermissions|length')
+            COUNT=$(echo ${SECURITY_GROUP_RESULT} | jq '.SecurityGroups[].IpPermissions|length')
             if [ $COUNT != 1 ];then
               exit 1
             fi
 
   check-not-exists-ip-permission:
     steps:
+      - describe-security-groups
       - run:
           name: Check not exists IP Permission in Security Group
           command: |
-            COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
-                    | jq '.SecurityGroups[].IpPermissions|length')
+            # COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
+            #         | jq '.SecurityGroups[].IpPermissions|length')
+            COUNT=$(echo ${SECURITY_GROUP_RESULT} | jq '.SecurityGroups[].IpPermissions|length')
             if [ $COUNT != 0 ];then
               exit 1
             fi
@@ -164,9 +177,8 @@ jobs:
       - run:
           name: Check ports IP Permission in Security Group
           command: |
-            aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID}
             PORTS=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
-                    | jq -r '.SecurityGroups[].IpPermissions[1]|[.FromPort, .ToPort]|@csv')
+                    | jq -r '.SecurityGroups[0].IpPermissions[0]|[.FromPort, .ToPort]|@csv')
             echo ${PORTS}
             if [ "${PORTS}" != "22,22" ];then
               exit 1
