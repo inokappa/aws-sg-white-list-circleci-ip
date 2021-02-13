@@ -69,7 +69,6 @@ commands:
 
   check-not-exists-ip-permission:
     steps:
-      - describe-security-groups
       - run:
           name: Check not exists IP Permission in Security Group
           command: |
