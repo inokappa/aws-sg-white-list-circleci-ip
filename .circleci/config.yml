@@ -63,6 +63,11 @@ commands:
           command: |
             SG_RESULT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} | jq -c .)
             echo "export SECURITY_GROUP_RESULT=${SG_RESULT}" >> $BASH_ENV
+            echo "-----------------------"
+            echo ${SECURITY_GROUP_RESULT}
+            echo "-----------------------"
+            echo ${SG_RESULT}
+            echo "-----------------------"
 
   check-exists-ip-permission:
     steps:
@@ -72,9 +77,6 @@ commands:
           command: |
             # COUNT=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
             #         | jq '.SecurityGroups[].IpPermissions|length')
-            echo "-----------------------"
-            echo ${SECURITY_GROUP_RESULT}
-            echo "-----------------------"
             COUNT=$(echo ${SECURITY_GROUP_RESULT} | jq '.SecurityGroups[].IpPermissions|length')
             if [ $COUNT != 1 ];then
               exit 1
