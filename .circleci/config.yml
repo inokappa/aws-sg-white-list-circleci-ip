@@ -166,6 +166,7 @@ jobs:
           command: |
             PORTS=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
                     | jq -r '.SecurityGroups[].IpPermissions[1]|[.FromPort, .ToPort]|@csv')
+            echo ${PORTS}
             if [ "${PORTS}" != "22,22" ];then
               exit 1
             fi
