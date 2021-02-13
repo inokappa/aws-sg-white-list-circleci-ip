@@ -133,6 +133,7 @@ jobs:
       - aws-sg-white-list-circleci-ip/add:
           group-id: ${<< parameters.group-id >>}
           description: 'Test-Permission'
+      - check-exists-ip-permission
       - run:
           name: Check description IP Permission in Security Group
           command: |
@@ -144,6 +145,34 @@ jobs:
       - aws-sg-white-list-circleci-ip/del:
           group-id: ${<< parameters.group-id >>}
           description: 'Test-Permission'
+      - check-not-exists-ip-permission
+
+  integration-test-4:
+    environment:
+      AWS_PAGER: ''
+      GROUP_ID: ''
+    executor: integration-test
+    steps:
+      - checkout
+      - install-awscli
+      - create-security-group
+      - aws-sg-white-list-circleci-ip/add:
+          tag-key: 'sg-white-list'
+          tag-value: 'true'
+          port: 22
+      - check-exists-ip-permission
+      - run:
+          name: Check ports IP Permission in Security Group
+          command: |
+            PORTS=$(aws --endpoint ${AWS_ENDPOINT} ec2 describe-security-groups --group-ids ${GROUP_ID} \
+                    | jq -r '.SecurityGroups[0].IpPermissions[0]|[.FromPort, .ToPort]|@csv')
+            if [ "${PORTS}" != "22,22" ];then
+              exit 1
+            fi
+      - aws-sg-white-list-circleci-ip/del:
+          tag-key: 'sg-white-list'
+          tag-value: 'true'
+          port: 22
       - check-not-exists-ip-permission
 
 workflows:
@@ -180,6 +209,7 @@ workflows:
       - integration-test-1
       - integration-test-2
       - integration-test-3
+      - integration-test-4
       - orb-tools/dev-promote-prod-from-commit-subject:
           orb-name: inokappa/aws-sg-white-list-circleci-ip
           context: orb-publishing
@@ -190,6 +220,7 @@ workflows:
             - integration-test-1
             - integration-test-2
             - integration-test-3
+            - integration-test-4
           filters:
             branches:
               only:

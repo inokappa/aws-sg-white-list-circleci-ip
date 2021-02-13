@@ -30,6 +30,8 @@ parameters:
     type: string
     default: bastionaccess
 steps:
+  - aws-cli/install
+  - jq/install
   - run:
       name: Add CircleCI's IP address to the Security Group
       command: |
